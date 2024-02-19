@@ -13,6 +13,9 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { auth } from "../_utility/lib/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 import {
   SelectValue,
@@ -22,14 +25,28 @@ import {
   Select,
 } from "@/components/ui/select";
 
+import { Voter } from "../_utility/models/voter";
+import database from "../_utility/lib/database";
+
 const formSchema = z
   .object({
     emailAddress: z.string().email(),
     name: z.string().min(2),
     surname: z.string().min(3),
     password: z.string().min(3),
+    idNum: z.string().regex(/^\d{13}$/, "Invalid National ID format"),
     passwordConfirm: z.string(),
-    provinceName: z.enum(["Limpopo", "Mpumalanga", "Free State", "North West", "KwaZulu Natal", "Northern Cape", "Western Cape", "Eastern Cape","Gauteng"]),
+    provinceName: z.enum([
+      "Limpopo",
+      "Mpumalanga",
+      "Free State",
+      "North West",
+      "KwaZulu Natal",
+      "Northern Cape",
+      "Western Cape",
+      "Eastern Cape",
+      "Gauteng",
+    ]),
   })
   .refine(
     (data) => {
@@ -48,17 +65,44 @@ export default function Home() {
       emailAddress: "",
       name: "",
       surname: "",
+      idNum: "",
       password: "",
       passwordConfirm: "",
       //provinceName: "",
-      
     },
   });
 
   const province = form.watch("provinceName");
 
+  const createVoterObject = (
+    userID: string,
+    values: z.infer<typeof formSchema>
+  ) => {
+    const newVoter: Voter = {
+      voterId: userID,
+      name: values.name,
+      surname: values.surname,
+      email: values.emailAddress,
+      identityNum: values.idNum,
+      province: values.provinceName,
+    };
+
+    return newVoter;
+  };
+
+  const route = useRouter();
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     console.log({ values });
+    createUserWithEmailAndPassword(auth, values.emailAddress, values.password)
+      .then(async (response) => {
+        const newVoterObject = createVoterObject(response.user?.uid, values);
+        await database.addVoter(newVoterObject);
+        alert("Registered Successfully!")
+        route.push('/');
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
 
   return (
@@ -68,7 +112,6 @@ export default function Home() {
           onSubmit={form.handleSubmit(handleSubmit)}
           className="max-w-md w-full flex flex-col gap-4"
         >
-          
           <FormField
             control={form.control}
             name="name"
@@ -77,11 +120,7 @@ export default function Home() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="First Name"
-                      type="text"
-                      {...field}
-                    />
+                    <Input placeholder="First Name" type="text" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,7 +128,7 @@ export default function Home() {
             }}
           />
 
-        <FormField
+          <FormField
             control={form.control}
             name="surname"
             render={({ field }) => {
@@ -97,18 +136,30 @@ export default function Home() {
                 <FormItem>
                   <FormLabel>Surname</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Last name"
-                      type="text"
-                      {...field}
-                    />
+                    <Input placeholder="Last name" type="text" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               );
             }}
           />
-          
+
+          <FormField
+            control={form.control}
+            name="idNum"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel>Identity Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="ID Number" type="number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+
           <FormField
             control={form.control}
             name="emailAddress"
@@ -128,6 +179,7 @@ export default function Home() {
               );
             }}
           />
+
           <FormField
             control={form.control}
             name="provinceName"
@@ -142,15 +194,15 @@ export default function Home() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="lim">Limpopo</SelectItem>
-                      <SelectItem value="nw">North West</SelectItem>
-                      <SelectItem value="ec">Eastern Cape</SelectItem>
-                      <SelectItem value="nc">Northern Cape</SelectItem>
-                      <SelectItem value="wc">Western Cape</SelectItem>
-                      <SelectItem value="kzn">KwaZulu Natal</SelectItem>
-                      <SelectItem value="mp">Mpumalanga</SelectItem>
-                      <SelectItem value="fs">Free State</SelectItem>
-                      <SelectItem value="gau">Gauteng</SelectItem>
+                      <SelectItem value="Limpopo">Limpopo</SelectItem>
+                      <SelectItem value="North West">North West</SelectItem>
+                      <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
+                      <SelectItem value="Northern Cape">Northern Cape</SelectItem>
+                      <SelectItem value="Western Cape">Western Cape</SelectItem>
+                      <SelectItem value="KwaZulu Natal">KwaZulu Natal</SelectItem>
+                      <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
+                      <SelectItem value="Free State">Free State</SelectItem>
+                      <SelectItem value="Gauteng">Gauteng</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -158,6 +210,7 @@ export default function Home() {
               );
             }}
           />
+
           <FormField
             control={form.control}
             name="password"
@@ -173,6 +226,7 @@ export default function Home() {
               );
             }}
           />
+
           <FormField
             control={form.control}
             name="passwordConfirm"
@@ -192,6 +246,7 @@ export default function Home() {
               );
             }}
           />
+
           <Button type="submit" className="w-full">
             Submit
           </Button>

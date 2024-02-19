@@ -21,7 +21,7 @@ export default function Home(){
   return (
     <section>
       <Button onClick={
-        () => handleClick('test@gmail.com', '123456')
+        () => handleClick('test7@gmail.com', '123456')
       }>
         Log In
       </Button>
