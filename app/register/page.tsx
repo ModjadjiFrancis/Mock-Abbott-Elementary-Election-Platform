@@ -34,7 +34,7 @@ const formSchema = z
     name: z.string().min(2),
     surname: z.string().min(3),
     password: z.string().min(3),
-    idNum: z.string().regex(/^\d{13}$/, "Invalid National ID format"),
+    //idNum: z.string().regex(/^\d{13}$/, "Invalid National ID format"),
     passwordConfirm: z.string(),
     provinceName: z.enum([
       "Limpopo",
@@ -65,7 +65,7 @@ export default function Home() {
       emailAddress: "",
       name: "",
       surname: "",
-      idNum: "",
+      //idNum: "",
       password: "",
       passwordConfirm: "",
       //provinceName: "",
@@ -83,7 +83,7 @@ export default function Home() {
       name: values.name,
       surname: values.surname,
       email: values.emailAddress,
-      identityNum: values.idNum,
+      //identityNum: values.idNum,
       province: values.provinceName,
     };
 
@@ -97,8 +97,8 @@ export default function Home() {
       .then(async (response) => {
         const newVoterObject = createVoterObject(response.user?.uid, values);
         await database.addVoter(newVoterObject);
-        alert("Registered Successfully!")
-        route.push('/');
+        alert("Registered Successfully!") 
+        route.push('/ballot');
       })
       .catch((e) => {
         console.log(e);
@@ -107,9 +107,11 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/AbbottElementary.png/800px-AbbottElementary.png" className="w-96 mb-8 rounded-lg shadow-lg" alt="Abbott Elementary"/>
+        <h2 className="text-2xl font-bold mb-4">REGISTER TO PLACE YOUR VOTE</h2>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleSubmit)}
+          onSubmit={form.handleSubmit(handleSubmit)} //need to add this to the log in/sign in page
           className="max-w-md w-full flex flex-col gap-4"
         >
           <FormField
@@ -144,7 +146,7 @@ export default function Home() {
             }}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name="idNum"
             render={({ field }) => {
@@ -158,7 +160,7 @@ export default function Home() {
                 </FormItem>
               );
             }}
-          />
+          /> */}
 
           <FormField
             control={form.control}

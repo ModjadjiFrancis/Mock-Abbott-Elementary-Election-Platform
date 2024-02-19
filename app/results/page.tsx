@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import database from "@/app/_utility/lib/database"
 import { Vote } from "@/app/_utility/models/vote"
 import { Voter } from "@/app/_utility/models/voter"
- 
+import { useRouter } from 'next/navigation';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,6 +19,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import candidates from '@/app/_utility/constants/candidates'
+import { Button } from '@/components/ui/button';
  
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
  
@@ -67,10 +68,6 @@ const ResultsPage = () => {
     return percentageByParty;
   }
  
- 
- 
- 
- 
   const getVotesByProvince = () => {
     const provinceIds: { [key: string]: number } = {}; // Add index signature to allow indexing with a string
     for (const { voter } of votes) { // Access 'votes' state variable
@@ -108,9 +105,6 @@ const ResultsPage = () => {
     uniqueProvinces.forEach((province, index) => {
       colorMap[province] = colors[index % colors.length]; // Assign color to province
     });
-
- 
-    
  
     const data = {
       labels: partyList,
@@ -160,7 +154,7 @@ const ResultsPage = () => {
       labels: partyList,
       datasets: [
         {
-          label: 'Votes by Party',
+          label: 'Votes by Educator',
           data: Object.values(getVotesByParty()),
           backgroundColor: [
             'rgba(255, 99, 132, 0.2)',
@@ -200,59 +194,45 @@ const ResultsPage = () => {
  
     return { data, options };
   }
- 
+  const route = useRouter();
+  
+  const handleHome = () => {
+    route.push('/');
+  }
   return (
-<div>
-<h2>Results</h2>
- 
-      <h3>
-        Percentage of users voted: 
-        {
-          // Calculate the percentage and round to two decimal places
-          (Number((votes.length / voters.length * 100).toFixed(2)))
-        } %
-</h3>
- 
-      <p>Total votes: {getTotalVotes()}</p>
-<h2>Results by Party</h2>
-      {
-        Object.entries(getVotesByParty()).map(([partyId, votes]) => (
-<p key={partyId}>Party {partyId}: {votes}</p>
-        ))
-      }
-<h2>Results by Province</h2>
-      {
-        Object.entries(getVotesByProvince()).map(([province, votes]) => (
-<p key={province}>{province}: {votes}</p>
-        ))
-      }
- 
- 
-      <h2>Results by Party (Percentage)</h2>
-      {
-        Object.entries(getPercentageOfVotesByParty()).map(([partyId, percentage]) => (
-<p key={partyId}>Party {partyId}: {percentage.toFixed(2)}%</p>
-        ))
-      }
- 
-      <Bar data={getBarChartDataAndOptions().data} options={getBarChartDataAndOptions().options} />
- 
-      <h2>Results by Party and Province</h2>
-      {
-        Object.entries(getVotesByPartyAndProvince()).map(([partyId, votesByProvince]) => (
-<div key={partyId}>
-<h3>Party {partyId}</h3>
-            {
-              Object.entries(votesByProvince).map(([province, votes]) => (
-<p key={province}>{province}: {votes}</p>
-              ))
-            }
-</div>
-        ))
-      }
- 
-      <Bar data={getBarChartDataAndOptionsForStacked().data} options={getBarChartDataAndOptionsForStacked().options} />
-</div>
+    <div className='flex flex-col justify-center items-center'>
+
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/AbbottElementary.png/800px-AbbottElementary.png" className="w-96 mb-8 rounded-lg mt-2 shadow-lg" alt="Abbott Elementary" />
+      <h2 className="text-2xl font-bold text-center mb-4 p-4">RESULTS</h2>      
+           
+          <section className="items-center">
+              <h3 className='text-xl'>  
+                {
+                  (Number((votes.length / voters.length * 100).toFixed(2)))
+                } % of all regisered voters voted
+              </h3>
+      
+            <p>Total votes: {getTotalVotes()}</p>
+          </section>
+          
+
+          <div className="bg-color caret-yellow-900 flex justify-center">
+              <div className='bg-color caret-yellow-900'>
+                <h2 className="text-xl font-bold text-center mb-4 p-4">VOTES PER EDUCATOR</h2> 
+              </div> 
+          </div>
+          <section className='w-1/2 shadow-lg rounded-lg'>
+          <Bar data={getBarChartDataAndOptions().data} options={getBarChartDataAndOptions().options} />
+          </section><br></br>
+
+          <h2 className="text-xl font-bold text-center mb-4 p-4">VOTES PER EDUCATOR AND PROVINCE</h2> 
+          
+          <section className='w-1/2 items-center shadow-lg rounded-lg'>
+            <Bar data={getBarChartDataAndOptionsForStacked().data} options={getBarChartDataAndOptionsForStacked().options} />
+          </section>
+          <br></br>
+          <Button onClick={handleHome}>Home</Button><br></br>
+    </div>
   )
 }
  

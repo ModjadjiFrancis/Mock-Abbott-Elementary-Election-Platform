@@ -22,7 +22,7 @@ const candidates: Candidate[] = [
         candName: "Gregory",
         candSurname: "Eddie",
         candImage: "https://www.tvinsider.com/wp-content/uploads/2022/09/abbott-elementary-tyler-james-williams-2-1014x570.jpg",
-        candManifesto: "I believe in fostering a supportive learning environment where every student can thrive.",
+        candManifesto: "My life goal is to be a beacon of light and hope for all the young minds out there.",
       },
 
 ];

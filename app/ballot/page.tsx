@@ -50,8 +50,6 @@ const BallotPage = () => {
                 }
               })
             })
-
-
      
             promisedVoter.then((voter) => {
               if (voter) {
@@ -73,6 +71,10 @@ const BallotPage = () => {
         })
       }
 
+      const handleHome = () => {
+        route.push('/');
+      }
+
       const handleSubmit = async(cID:string) =>{
         const vote: Vote = {
             candidateId: cID,
@@ -90,48 +92,42 @@ const BallotPage = () => {
     };
       }
       return (
-            <div>
-              {
-                voter ? (
-                  <div>
-                    User email: {voter.email}
-
-                    {candidates.map(
-                        (candidate, index) => (
-                            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 justify-center'>
-                                <Card className='w-64'>
-                                    <CardHeader>
-                                        <CardTitle>
-                                            {`${candidate.candName} ${ candidate.candSurname}`}
-                                        </CardTitle>
-                                        <CardDescription>
-                                            {candidate.candManifesto}
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <img className='w-48'
-                                            src={candidate.candImage}
-                                            alt= 'Candidate Profile'
-                                        />
-                                    </CardContent>
-                                    <CardFooter>
-                                        <Button onClick={() => {
-                                          handleSubmit((index+1).toString())
-                                        }}>
-                                            Vote Now
-                                        </Button>
-                                    </CardFooter>
-                                </Card>
-                            </div>
-                        )
-                    )}
-                  </div>
-                ) : (
-                  <p>Loading...</p>
-                )
-              }
-            </div>
-        ); 
+        <div className= 'w-screen h-screen flex flex-col justify-center items-center'>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/AbbottElementary.png/800px-AbbottElementary.png" className="w-96 mb-8 rounded-lg shadow-lg" alt="Abbott Elementary" />
+          {
+            voter ? (
+              <div>
+                <div className='flex justify-center items-center'>
+                  <h2 className="text-1xl font-bold text-center mb-4 p-4"> {voter.name}, vote for your Educator of the year!</h2>      
+                </div>
+      
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto pl-64">
+                  {
+                    candidates.map((candidate, index) => (
+                      <Card key={index}>
+                        <CardHeader>
+                          <CardTitle>{`${candidate.candName} ${candidate.candSurname}`}</CardTitle>
+                          <CardDescription>{candidate.candManifesto}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <img className="w-48 h-36" src={candidate.candImage} alt="Candidate Profile" />
+                        </CardContent>
+                        <CardFooter className="flex justify-center">
+                          <Button onClick={() => handleSubmit((index + 1).toString())}>Vote Now</Button>
+                        </CardFooter>
+                      </Card>
+                    ))
+                  }
+                </div>
+              </div>
+            ) : (
+              <p>Loading...</p>
+            )
+          }
+        <br></br>
+          <Button onClick={handleHome}>Home</Button><br></br>
+        </div>
+      );
     }         
 
 export default BallotPage
